@@ -9,11 +9,11 @@ Mahasiswa mengisi, memodifikasi, dan mengembangkan kode ini sesuai topik kelompo
 
 ## 👥 Identitas Kelompok
 
-| Nama | NIM | Tugas Utama |
-|------|-----|-------------|
-| ...  | ... | ...         |
-| ...  | ... | ...         |
-| ...  | ... | ...         |
+| Nama                            | NIM | Tugas Utama |
+|---------------------------------|-----|-------------|
+| Alan Herva Ikhsan Saputra       | 01  | ...         |
+| Riza Hanafi                     | 26  | ...         |
+| Vicky Rizkyanto                 | 30  | ...         |
 
 **Topik Domain:** *(isi: Akademik / Kesehatan / Hukum / Bisnis / Pertanian / Teknologi)*  
 **Stack yang Dipilih:** *(isi: LangChain / LlamaIndex / From Scratch)*  
