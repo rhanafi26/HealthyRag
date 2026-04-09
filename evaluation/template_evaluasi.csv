@@ -1,0 +1,19 @@
+No,Pertanyaan,Jawaban Sistem RAG,Jawaban Ideal / Referensi,Skor Relevansi (1-5),Catatan
+1,"[Tulis pertanyaan pertama di sini]","[Jawaban yang dihasilkan sistem]","[Jawaban yang seharusnya / sumber]",,"[Analisis singkat]"
+2,"[Pertanyaan kedua]","","","",""
+3,"[Pertanyaan ketiga]","","","",""
+4,"[Pertanyaan keempat]","","","",""
+5,"[Pertanyaan kelima]","","","",""
+6,"[Pertanyaan keenam]","","","",""
+7,"[Pertanyaan ketujuh]","","","",""
+8,"[Pertanyaan kedelapan]","","","",""
+9,"[Pertanyaan kesembilan]","","","",""
+10,"[Pertanyaan kesepuluh]","","","",""
+,,,,Rata-rata:,"=AVERAGE(E2:E11)"
+
+PANDUAN PENILAIAN SKOR:
+Skor 5,"Jawaban sangat relevan, akurat, dan lengkap"
+Skor 4,"Jawaban relevan dan sebagian besar akurat"
+Skor 3,"Jawaban cukup relevan tapi ada bagian yang kurang atau tidak akurat"
+Skor 2,"Jawaban kurang relevan, banyak informasi yang salah"
+Skor 1,"Jawaban tidak relevan atau sistem tidak bisa menjawab sama sekali"

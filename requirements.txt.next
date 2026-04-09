@@ -1,0 +1,60 @@
+# ============================================================
+# RAG UTS - Dependencies
+# Pilih salah satu "grup" sesuai framework yang kalian gunakan
+# Hapus grup yang tidak dipakai agar lebih ringan
+# ============================================================
+
+# --- WAJIB (semua kelompok) ---
+python-dotenv>=1.0.0
+streamlit>=1.32.0
+
+# ============================================================
+# OPSI A: LangChain (direkomendasikan untuk pemula)
+# ============================================================
+langchain>=0.1.0
+langchain-community>=0.0.20
+langchain-openai>=0.0.5          # Jika pakai OpenAI / Groq
+langchain-google-genai>=0.0.6   # Jika pakai Google Gemini
+langchain-ollama>=0.0.1         # Jika pakai Ollama (offline)
+
+# ============================================================
+# OPSI B: LlamaIndex
+# ============================================================
+# llama-index>=0.10.0
+# llama-index-llms-groq>=0.1.0
+# llama-index-llms-ollama>=0.1.0
+# llama-index-embeddings-huggingface>=0.1.0
+
+# ============================================================
+# OPSI C: From Scratch (tanpa framework RAG)
+# ============================================================
+# sentence-transformers>=2.6.0  # Untuk embedding lokal gratis
+# requests>=2.31.0              # HTTP requests ke LLM API
+
+# ============================================================
+# Vector Database (pilih salah satu)
+# ============================================================
+chromadb>=0.4.0                  # Rekomendasi: mudah, lokal
+# faiss-cpu>=1.7.4               # Alternatif: sangat cepat
+# qdrant-client>=1.7.0           # Alternatif: fitur lengkap
+
+# ============================================================
+# Document Loaders
+# ============================================================
+pypdf>=4.0.0                     # Baca file PDF
+unstructured>=0.12.0             # Baca berbagai format dokumen
+beautifulsoup4>=4.12.0           # Scraping dari web
+requests>=2.31.0
+
+# ============================================================
+# Embedding Models (jika pakai HuggingFace / offline)
+# ============================================================
+# sentence-transformers>=2.6.0
+# torch>=2.0.0                   # Diperlukan sentence-transformers
+
+# ============================================================
+# Utilities
+# ============================================================
+pandas>=2.0.0                    # Untuk evaluasi & data
+openpyxl>=3.1.0                  # Export Excel
+tqdm>=4.66.0                     # Progress bar

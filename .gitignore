@@ -1,0 +1,40 @@
+# Environment & secrets — JANGAN pernah commit ini!
+.env
+*.key
+*.pem
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Vector store (bisa diregenerasi)
+vectorstore/
+chroma_db/
+faiss_index/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
