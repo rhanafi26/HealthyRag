@@ -1,20 +1,24 @@
+import csv
 import os
 from pathlib import Path
 
 import faiss
 import numpy as np
+import re
 from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
-import openai
-
+from groq import Groq
 
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
-DATA_FILE = PROJECT_DIR / "data" / "sample_dokumen.txt"
+DATA_FILE = PROJECT_DIR / "data" / "1739240888.csv"
 
 
 # =========================
@@ -28,27 +32,85 @@ def load_data(path):
             f"Expected location: {DATA_FILE}"
         )
 
+    data = []
     with path.open("r", encoding="utf-8") as f:
-        texts = f.readlines()
-    return [t.strip() for t in texts if t.strip()]
+        reader = csv.reader(f)
+        for row in reader:
+            if row:
+                data.append(row)
+
+    return data
 
 
 
 # =========================
-# 2. PREPROCESS (TODO)
+# 2. PREPROCESS
 # =========================
+def detect_type(value):
+    try:
+        if "." in value:
+            return float(value)
+        return int(value)
+    except:
+        return value
+
+def clean_text(text):
+    # lowercase text
+    text = text.lower()
+    #  hapus tanda baca
+    text = re.sub(r"[^\w\s]", "", text)
+    # hapus spasi
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+def is_url(text):
+    return text.startswith("http")
+
 def preprocess(texts):
-    # TODO: mahasiswa bisa tambahkan cleaning
-    return texts
+    cleaned_texts = []
 
+    # ambil header
+    header = texts[0]
+
+    # start index ke 1
+    for row in texts[1:]:
+        # skip row yang tidak valid
+        if len(row) != len(header):
+            continue
+
+        item = {}
+
+        for i, col in enumerate(header):
+            # get data by index
+            value = row[i]
+
+            # deteksi tipe data value
+            value = detect_type(value)
+
+            # membersihkan value agar seragam
+            if isinstance(value, str) and not is_url(value):
+                value = clean_text(value)
+
+            # masukan ke dict agar jadi json
+            item[col] = value
+
+        text = " ".join([f"{k} {v}" for k, v in item.items()])
+
+        cleaned_texts.append(text)
+
+    return cleaned_texts
+
+
+    # return cleaned_texts
 
 # =========================
-# 3. CHUNKING (TODO)
+# 3. CHUNKING
 # =========================
 def chunking(texts, chunk_size=2):
     chunks = []
     for i in range(0, len(texts), chunk_size):
-        chunk = " ".join(texts[i:i+chunk_size])
+        # chunk = " ".join(texts[i:i+chunk_size])
+        chunk = texts[i:i + chunk_size]
         chunks.append(chunk)
     return chunks
 
@@ -93,15 +155,31 @@ def answer_question(query, context):
 # -----------------------------
 # 7. LLM ANSWER
 # -----------------------------
+def flatten_chunks(chunks):
+    result = []
+    for chunk in chunks:
+        if isinstance(chunk, list):
+            result.extend(chunk)
+        else:
+            result.append(chunk)
+    return result
+
 def answer_with_llm(query, context_chunks):
-    context_text = "\n".join(context_chunks)
+    context_text = "\n".join(flatten_chunks(context_chunks))
+
     prompt = f"Jawab pertanyaan berikut berdasarkan konteks:\n{context_text}\nPertanyaan: {query}"
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=200
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        model="llama-3.3-70b-versatile",
     )
-    return response.choices[0].message.content.strip()
+
+    print(chat_completion.choices[0].message.content)
 
 # =========================
 # MAIN PIPELINE
@@ -112,41 +190,48 @@ def main():
 
     # Step 1: Load data
     texts = load_data(DATA_FILE)
+    print(texts)
 
     # Step 2: Preprocess
     texts = preprocess(texts)
+    print(texts)
 
-    # Step 3: Chunking
+    # # Step 3: Chunking
     chunks = chunking(texts)
+    print(chunks)
 
-    # Step 4: Embedding
+    # # Step 4: Embedding
     embeddings = create_embeddings(chunks, model)
+    print(embeddings)
 
-    # Step 5: Indexing
+    # # Step 5: Indexing
     index = build_index(embeddings)
+    print(index)
 
-    # Step 6: Query loop
+
+    #
+    # # Step 6: Query loop
+    # while True:
+    #     query = input("\nTanya (ketik 'exit' untuk keluar): ")
+    #     if query.lower() == "exit":
+    #         break
+    #
+    #     context = retrieve(query, model, index, chunks)
+    #     answer = answer_question(query, context)
+    #
+    #     print("\n=== HASIL ===")
+    #     print(answer)
+
+
+    print("=== Sistem RAG + LLM siap digunakan ===")
     while True:
         query = input("\nTanya (ketik 'exit' untuk keluar): ")
         if query.lower() == "exit":
             break
-
         context = retrieve(query, model, index, chunks)
-        answer = answer_question(query, context)
-
+        answer = answer_with_llm(query, context)
         print("\n=== HASIL ===")
         print(answer)
-
-
-    # print("=== Sistem RAG + LLM siap digunakan ===")
-    #     while True:
-    #         query = input("\nTanya (ketik 'exit' untuk keluar): ")
-    #         if query.lower() == "exit":
-    #             break
-    #         context = retrieve(query, model, index, chunks)
-    #         answer = answer_with_llm(query, context)
-    #         print("\n=== HASIL ===")
-    #         print(answer)
 
 if __name__ == "__main__":
     main()
