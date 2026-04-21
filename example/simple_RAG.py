@@ -106,7 +106,7 @@ def preprocess(texts):
 # =========================
 # 3. CHUNKING
 # =========================
-def chunking(texts, chunk_size=2):
+def chunking(texts, chunk_size=4):
     chunks = []
     for i in range(0, len(texts), chunk_size):
         # chunk = " ".join(texts[i:i+chunk_size])
@@ -137,7 +137,7 @@ def build_index(embeddings):
 # =========================
 # 6. RETRIEVAL
 # =========================
-def retrieve(query, model, index, chunks, k=2):
+def retrieve(query, model, index, chunks, k=4):
     query_vec = model.encode([query])
     distances, indices = index.search(np.array(query_vec), k)
     results = [chunks[i] for i in indices[0]]
@@ -179,7 +179,7 @@ def answer_with_llm(query, context_chunks):
         model="llama-3.3-70b-versatile",
     )
 
-    print(chat_completion.choices[0].message.content)
+    return chat_completion.choices[0].message.content
 
 # =========================
 # MAIN PIPELINE
