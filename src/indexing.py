@@ -23,8 +23,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Konfigurasi — bisa diubah sesuai kebutuhan
-CHUNK_SIZE    = int(os.getenv("CHUNK_SIZE", 500))
-CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 50))
+CHUNK_SIZE    = int(os.getenv("CHUNK_SIZE", 800)) # pemilihan 800 agar bisa menangkap konteks lebih lengkap
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 50)) # pemilihan 50 agar lebih efisien
 DATA_DIR      = Path(os.getenv("DATA_DIR", "./data"))
 VS_DIR        = Path(os.getenv("VECTORSTORE_DIR", "./vectorstore"))
 
@@ -41,19 +41,41 @@ def build_index_scratch():
     from sentence_transformers import SentenceTransformer
     import faiss
     import pandas as pd
+    from pypdf import PdfReader
 
     print(" Memulai Pipeline Indexing (From Scratch)")
 
     # Load dokumen
     documents = []
 
+    # load csv file
     for file_path in DATA_DIR.glob("**/*.csv"):
         with open(file_path, "r", encoding="utf-8") as f:
-            content = pd.read_csv(f).to_string()
-            documents.append({"source": str(file_path), "content": content})
-    print(f" {len(documents)} dokumen dimuat")
+            content = pd.read_csv(f)
+            for _, row in content.iterrows():
+                text = " ".join([f"{col}: {row[col]}" for col in content.columns])
+                documents.append({
+                    "source": str(file_path),
+                    "content": text
+                })
 
-    print("Jumlah dokumen:", len(documents))
+    # load pdf file
+    for file_path in DATA_DIR.glob("**/*.pdf"):
+        reader = PdfReader(file_path)
+        content = ""
+
+        for page in reader.pages:
+            text += page.extract_text()
+            if text:
+                text = text.replace("\n", " ").strip()
+                content += text + " "
+
+        documents.append({
+            "source": str(file_path),
+            "content": content
+        })
+
+    print(f" {len(documents)} dokumen dimuat")
 
     # Chunking manual
     chunks = []
@@ -66,7 +88,7 @@ def build_index_scratch():
     print(f" {len(chunks)} chunk dibuat")
 
     # Embedding
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
     texts = [c["text"] for c in chunks]
     embeddings = model.encode(texts, show_progress_bar=True)
     print(f" Embedding selesai, dimensi: {embeddings.shape}")

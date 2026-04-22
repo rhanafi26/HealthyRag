@@ -21,9 +21,9 @@ load_dotenv()
 
 CHUNK_SIZE    = int(os.getenv("CHUNK_SIZE", 500))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 50))
-TOP_K         = int(os.getenv("TOP_K", 3))
+TOP_K         = int(os.getenv("TOP_K", 15))
 VS_DIR        = Path(os.getenv("VECTORSTORE_DIR", "./vectorstore"))
-LLM_MODEL     = os.getenv("LLM_MODEL_NAME", "llama3-8b-8192")
+LLM_MODEL     = os.getenv("LLM_MODEL_NAME", "llama-3.1-8b-instant")
 
 
 # =============================================================
@@ -31,11 +31,10 @@ LLM_MODEL     = os.getenv("LLM_MODEL_NAME", "llama3-8b-8192")
 # Pilih implementasi yang sesuai dengan pilihan LLM kalian
 # =============================================================
 
-
 def load_vectorstore():
-    """Memuat vector database yang sudah dibuat oleh indexing.py"""
-    from langchain_community.embeddings import HuggingFaceEmbeddings
-    from langchain_community.vectorstores import Chroma
+    """Load FAISS + chunks."""
+    import faiss
+    import json
 
     if not VS_DIR.exists():
         raise FileNotFoundError(
@@ -43,39 +42,47 @@ def load_vectorstore():
             "Jalankan dulu: python src/indexing.py"
         )
 
-    embedding_model = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
-        model_kwargs={"device": "cpu"}
-    )
+    index = faiss.read_index(str(VS_DIR / "index.faiss"))
 
-    vectorstore = Chroma(
-        persist_directory=str(VS_DIR),
-        embedding_function=embedding_model
-    )
-    return vectorstore
+    with open(VS_DIR / "chunks.json", "r", encoding="utf-8") as f:
+        chunks = json.load(f)
 
+    # load model sama dengan indexing
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+
+    return {
+        "index": index,
+        "chunks": chunks,
+        "model": model
+    }
 
 def retrieve_context(vectorstore, question: str, top_k: int = TOP_K) -> list:
-    """
-    LANGKAH 1 & 2: Query embedding + Similarity search.
-    
-    Fungsi ini:
-    - Mengubah pertanyaan ke vektor
-    - Mencari top_k chunk paling relevan
-    - Mengembalikan list dokumen relevan
-    """
-    results = vectorstore.similarity_search_with_score(question, k=top_k)
-    
-    contexts = []
-    for doc, score in results:
-        contexts.append({
-            "content": doc.page_content,
-            "source": doc.metadata.get("source", "unknown"),
-            "score": round(float(score), 4)
-        })
-    
-    return contexts
+    import faiss
 
+    index = vectorstore["index"]
+    chunks = vectorstore["chunks"]
+    model = vectorstore["model"]
+
+    # encode query
+    query_vec = model.encode([question])
+
+    # normalize
+    faiss.normalize_L2(query_vec)
+
+    # search
+    D, I = index.search(query_vec.astype("float32"), top_k)
+
+    contexts = []
+    for i, idx in enumerate(I[0]):
+        if idx < len(chunks):
+            contexts.append({
+                "content": chunks[idx]["text"],
+                "source": chunks[idx]["source"],
+                "score": round(float(D[0][i]), 4)
+            })
+
+    return contexts
 
 def build_prompt(question: str, contexts: list) -> str:
     """
@@ -121,38 +128,12 @@ def get_answer_groq(prompt: str) -> str:
     
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     response = client.chat.completions.create(
-        model=LLM_MODEL,  # "llama3-8b-8192" atau "mixtral-8x7b-32768"
+        model=LLM_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1,   # Rendah = jawaban lebih konsisten/faktual
         max_tokens=1024
     )
     return response.choices[0].message.content
-
-
-# ─────────────────────────────────────────────────────────────
-# OPSI LLM B: Google Gemini (gratis tier)
-# ─────────────────────────────────────────────────────────────
-# def get_answer_gemini(prompt: str) -> str:
-#     import google.generativeai as genai
-#     genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-#     model = genai.GenerativeModel("gemini-1.5-flash")
-#     response = model.generate_content(prompt)
-#     return response.text
-
-
-# ─────────────────────────────────────────────────────────────
-# OPSI LLM C: Ollama (100% offline, gratis)
-# Pastikan Ollama sudah diinstall dan model sudah di-pull:
-# ollama pull llama3
-# ─────────────────────────────────────────────────────────────
-# def get_answer_ollama(prompt: str) -> str:
-#     import requests
-#     response = requests.post(
-#         "http://localhost:11434/api/generate",
-#         json={"model": "llama3", "prompt": prompt, "stream": False}
-#     )
-#     return response.json()["response"]
-
 
 def answer_question(question: str, vectorstore=None) -> dict:
     """
@@ -163,7 +144,7 @@ def answer_question(question: str, vectorstore=None) -> dict:
     """
     if vectorstore is None:
         vectorstore = load_vectorstore()
-    
+
     # Retrieve
     print(f"🔍 Mencari konteks relevan untuk: '{question}'")
     contexts = retrieve_context(vectorstore, question)
@@ -174,11 +155,8 @@ def answer_question(question: str, vectorstore=None) -> dict:
     
     # Generate answer
     print("🤖 Mengirim ke LLM...")
-    
-    # TODO: Ganti sesuai LLM yang kalian pilih
+
     answer = get_answer_groq(prompt)
-    # answer = get_answer_gemini(prompt)
-    # answer = get_answer_ollama(prompt)
     
     return {
         "question": question,
@@ -195,6 +173,7 @@ if __name__ == "__main__":
     print("  Ketik 'keluar' untuk mengakhiri")
     print("=" * 55)
 
+    print("Memuat Database, loading..")
     try:
         vs = load_vectorstore()
         print("✅ Vector database berhasil dimuat\n")
@@ -216,7 +195,7 @@ if __name__ == "__main__":
         
         try:
             result = answer_question(question, vs)
-            
+
             print("\n" + "─" * 55)
             print("💬 JAWABAN:")
             print(result["answer"])
