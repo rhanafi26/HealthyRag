@@ -2,7 +2,7 @@
 
 > **Retrieval-Augmented Generation** — Sistem Tanya-Jawab Cerdas Berbasis Dokumen
 
-Starter pack ini adalah **kerangka awal** proyek RAG untuk UTS Data Engineering D3/D4.
+Starter pack ini adalah **kerangka awal** proyek RAG untuk UTS Data Engineering D4.
 Mahasiswa mengisi, memodifikasi, dan mengembangkan kode ini sesuai topik kelompok masing-masing.
 
 ---
@@ -11,14 +11,14 @@ Mahasiswa mengisi, memodifikasi, dan mengembangkan kode ini sesuai topik kelompo
 
 | Nama                            | NIM | Tugas Utama |
 |---------------------------------|-----|-------------|
-| Alan Herva Ikhsan Saputra       | 01  | ...         |
-| Riza Hanafi                     | 26  | ...         |
-| Vicky Rizkyanto                 | 30  | ...         |
+| Alan Herva Ikhsan Saputra       | 01  | PM          |
+| Riza Hanafi                     | 26  | DE          |
+| Vicky Rizkyanto                 | 30  | DA          |
 
-**Topik Domain:** *(isi: Akademik / Kesehatan / Hukum / Bisnis / Pertanian / Teknologi)*  
-**Stack yang Dipilih:** *(isi: LangChain / LlamaIndex / From Scratch)*  
-**LLM yang Digunakan:** *(isi: Groq / Gemini / Ollama / lainnya)*  
-**Vector DB yang Digunakan:** *(isi: ChromaDB / FAISS / lainnya)*
+**Topik Domain:** *(Kesehatan)*  
+**Stack yang Dipilih:** *(LangChain)*  
+**LLM yang Digunakan:** *(Groq)*  
+**Vector DB yang Digunakan:** *(FAISS)*
 
 ---
 
