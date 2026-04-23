@@ -122,8 +122,21 @@ Semua konfigurasi utama ada di `src/config.py` (atau langsung di setiap file):
 
 | # | Pertanyaan | Jawaban Sistem | Jawaban Ideal | Skor (1-5) |
 |---|-----------|----------------|---------------|-----------|
-| 1 | ... | ... | ... | ... |
-| 2 | ... | ... | ... | ... |
+| 1 | Provinsi yang memiliki tingkat obesitas tertinggi | Provinsi DKI Jakarta memiliki tingkat obesitas tertinggi dengan nilai 32,3% (30,1 - 34,5). | ... | 5 |
+| 2 | Berapa persentase status gizi normal di Indonesia | Saya tidak menemukan informasi tentang persentase status gizi normal di Indonesia dalam dokumen yang tersedia. | ... | 1 |
+| 3 | Bandingkan tingkat obesitas antara DKI Jakarta dan Jawa Barat | Tingkat obesitas di DKI Jakarta sebesar 32,3% (30,1 - 34,5) untuk laki-laki dan 59,1% (56,9 - 61,2) untuk perempuan. Sementara itu, tingkat obesitas di Jawa Barat sebesar 20,2% (19,2 - tidak ada data untuk perempuan). | ... | 5 |
+| 4 | Siapa yang lebih tinggi obesitasnya, laki-laki atau perempuan? | Saya tidak menemukan informasi tentang perbandingan obesitas antara laki-laki dan perempuan dalam dokumen yang tersedia. | ... | 1 |
+| 5 | Mana yang lebih tinggi obesitas perkotaan atau pedesaan | Saya tidak menemukan informasi tentang perbandingan obesitas perkotaan dan pedesaan dalam dokumen yang tersedia. | ... | 1 |
+| 6 | Bandingkan status gizi laki laki dan perempuan | Berdasarkan data yang tersedia, tidak ada informasi yang langsung membandingkan status gizi laki-laki dan perempuan. Namun, kita dapat melihat bahwa prevalensi status gizi yang sama (misalnya, obesitas) memiliki nilai yang berbeda antara laki-laki dan perempuan di setiap provinsi.
+
+Misalnya, di provinsi Aceh, prevalensi obesitas sentral pada laki-laki adalah 18,0% (16,7-19,4), sedangkan pada perempuan adalah 17,1% (16,6-17,7). Di provinsi Sumatera Utara, prevalensi obesitas sentral pada laki-laki adalah 26,4% (24,9-28,0), sedangkan pada perempuan adalah 17,8% (17,3-18,4).
+
+Dengan demikian, dapat disimpulkan bahwa prevalensi status gizi pada laki-laki dan perempuan memiliki perbedaan yang signifikan di setiap provinsi. | ... | 5 |
+| 7 | Provinsi dengan jumlah jumlah penduduk tebanyak | Provinsi dengan jumlah penduduk terbanyak adalah SULAWESI SELATAN dengan jumlah penduduk 9.362.290. | ... | 5 |
+| 8 | Jumlah penduduk undernouris terbanyak  | Jumlah penduduk undernouris terbanyak terdapat di Provinsi DI YOGYAKARTA dengan jumlah 37224940 orang. | ... | 5 |
+| 9 | Apa makanan tinggi kalori | Berdasarkan data yang tersedia, makanan yang tinggi kalori adalah Kacang Kedelai basah dengan kalori 286.0. | ... | 5 |
+| 10 | Makanan pokok provinsi aceh | Saya tidak menemukan informasi tentang makanan pokok provinsi Aceh dalam dokumen yang tersedia. Dokumen yang tersedia hanya berisi data konsumsi pangan di provinsi Maluku Utara. | ... | 1 |
+
 
 **Rata-rata Skor:** ...  
 **Analisis:** ...
@@ -144,10 +157,9 @@ Semua konfigurasi utama ada di `src/config.py` (atau langsung di setiap file):
 
 ## 📚 Referensi & Sumber
 
-- Framework: *(LangChain docs / LlamaIndex docs)*
-- LLM: *(Groq / Gemini / Ollama)*
-- Vector DB: *(ChromaDB / FAISS docs)*
-- Tutorial yang digunakan: *(cantumkan URL)*
+- LLM: *(Groq)*
+- Vector DB: *(FAISS docs)*
+- Tutorial yang digunakan: *()*
 
 ---
 
@@ -155,4 +167,4 @@ Semua konfigurasi utama ada di `src/config.py` (atau langsung di setiap file):
 
 - **Mata Kuliah:** Data Engineering
 - **Program Studi:** D4 Teknologi Rekayasa Perangkat Lunak
-- **Deadline:** *(isi tanggal)*
+- **Deadline:** *(23 April 2026)*
