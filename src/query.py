@@ -149,6 +149,10 @@ def answer_question(question: str, vectorstore=None) -> dict:
     print(f"🔍 Mencari konteks relevan untuk: '{question}'")
     contexts = retrieve_context(vectorstore, question)
     print(f"   ✅ {len(contexts)} chunk relevan ditemukan")
+
+    print("\n=== FILE YANG MASUK CONTEXT ===")
+    for c in contexts:
+        print(c["source"])
     
     # Build prompt
     prompt = build_prompt(question, contexts)

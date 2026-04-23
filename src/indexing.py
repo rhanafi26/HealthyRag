@@ -52,8 +52,15 @@ def build_index_scratch():
     for file_path in DATA_DIR.glob("**/*.csv"):
         with open(file_path, "r", encoding="utf-8") as f:
             content = pd.read_csv(f)
+
+            # deteksi jenis file
+            if "nutrition" in file_path.name.lower():
+                prefix = "DATA NUTRISI MAKANAN | "
+            else:
+                prefix = "DATA KONSUMSI PANGAN | "
+
             for _, row in content.iterrows():
-                text = " ".join([f"{col}: {row[col]}" for col in content.columns])
+                text = prefix + " ".join([f"{col}: {row[col]}" for col in content.columns])
                 documents.append({
                     "source": str(file_path),
                     "content": text
@@ -65,8 +72,9 @@ def build_index_scratch():
         content = ""
 
         for page in reader.pages:
-            text += page.extract_text()
+            text = page.extract_text() or ""
             if text:
+                text = page.extract_text() or ""
                 text = text.replace("\n", " ").strip()
                 content += text + " "
 
@@ -95,7 +103,8 @@ def build_index_scratch():
 
     # Simpan ke FAISS
     VS_DIR.mkdir(parents=True, exist_ok=True)
-    index = faiss.IndexFlatL2(embeddings.shape[1])
+    faiss.normalize_L2(embeddings)
+    index = faiss.IndexFlatIP(embeddings.shape[1])
     index.add(embeddings.astype("float32"))
     faiss.write_index(index, str(VS_DIR / "index.faiss"))
 
